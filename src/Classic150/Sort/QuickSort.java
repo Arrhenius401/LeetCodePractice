@@ -62,6 +62,7 @@ public class QuickSort {
         System.out.println("\n排序后的数组：");
         for (int num : arr) {
             System.out.print(num + " ");
+
         }
     }
 }
