@@ -1,0 +1,24 @@
+-- Employees 表：
+--
+-- +---------------+---------+
+-- | Column Name   | Type    |
+-- +---------------+---------+
+-- | id            | int     |
+-- | name          | varchar |
+-- +---------------+---------+
+-- 在 SQL 中，id 是这张表的主键。
+-- 这张表的每一行分别代表了某公司其中一位员工的名字和 ID 。
+--
+--
+-- EmployeeUNI 表：
+--
+-- +---------------+---------+
+-- | Column Name   | Type    |
+-- +---------------+---------+
+-- | id            | int     |
+-- | unique_id     | int     |
+-- +---------------+---------+
+-- 在 SQL 中，(id, unique_id) 是这张表的主键。
+-- 这张表的每一行包含了该公司某位员工的 ID 和他的唯一标识码（unique ID）。
+
+SELECT unique_id, name FROM Employees NATURAL LEFT OUTER JOIN EmployeeUNI
