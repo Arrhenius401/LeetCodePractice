@@ -1,0 +1,21 @@
+--  表： Weather
+--
+-- +---------------+---------+
+-- | Column Name   | Type    |
+-- +---------------+---------+
+-- | id            | int     |
+-- | recordDate    | date    |
+-- | temperature   | int     |
+-- +---------------+---------+
+-- id 是该表具有唯一值的列。
+-- 没有具有相同 recordDate 的不同行。
+-- 该表包含特定日期的温度信息
+--
+--
+-- 编写解决方案，找出与之前（昨天的）日期相比温度更高的所有日期的 id 。
+--
+-- 返回结果 无顺序要求 。
+--
+-- 结果格式如下例子所示。
+
+SELECT w1.id FROM Weather w1 JOIN Weather w2 ON w2.recordDate = DATE_SUB(w1.recordDate, INTERVAL 1 DAY) WHERE w1.temperature > w2.temperature;
