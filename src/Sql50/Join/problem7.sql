@@ -1,0 +1,41 @@
+-- 学生表: Students
+--
+-- +---------------+---------+
+-- | Column Name   | Type    |
+-- +---------------+---------+
+-- | student_id    | int     |
+-- | student_name  | varchar |
+-- +---------------+---------+
+-- 在 SQL 中，主键为 student_id（学生ID）。
+-- 该表内的每一行都记录有学校一名学生的信息。
+--
+--
+-- 科目表: Subjects
+--
+-- +--------------+---------+
+-- | Column Name  | Type    |
+-- +--------------+---------+
+-- | subject_name | varchar |
+-- +--------------+---------+
+-- 在 SQL 中，主键为 subject_name（科目名称）。
+-- 每一行记录学校的一门科目名称。
+--
+--
+-- 考试表: Examinations
+--
+-- +--------------+---------+
+-- | Column Name  | Type    |
+-- +--------------+---------+
+-- | student_id   | int     |
+-- | subject_name | varchar |
+-- +--------------+---------+
+-- 这个表可能包含重复数据（换句话说，在 SQL 中，这个表没有主键）。
+-- 学生表里的一个学生修读科目表里的每一门科目。
+-- 这张考试表的每一行记录就表示学生表里的某个学生参加了一次科目表里某门科目的测试。
+--
+--
+-- 查询出每个学生参加每一门科目测试的次数，结果按 student_id 和 subject_name 排序。
+
+SELECT stu.student_id, stu.student_name, sub.subject_name, count(e.subject_name) AS attended_exams
+FROM (Students stu CROSS JOIN Subjects sub) LEFT JOIN  Examinations e ON (stu.student_id = e.student_id AND sub.subject_name = e.subject_name)
+GROUP BY stu.student_id, sub.subject_name ORDER BY stu.student_id, sub.subject_name;
