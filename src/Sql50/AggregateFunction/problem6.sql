@@ -24,7 +24,18 @@ FROM Transactions t
 GROUP BY SUBSTRING(t.trans_date, 1, 7), t.country;
 
 -- 标准 SQL 语句的执行顺序
--- FROM -> WHERE -> GROUP BY -> 聚合函数 -> HAVING -> SELECT -> DISTINCT -> ORDER BY -> LIMIT 的执行顺序
+-- 1. FROM/JOIN：先确定查询的数据源（表 / 视图），执行表连接（JOIN）操作，生成临时中间表（包含所有关联数据）。
+-- 2. WHERE：对 FROM/JOIN 生成的中间表进行行级筛选（过滤不满足条件的记录），只保留符合条件的行。
+--          注意：WHERE 中不能使用 SELECT 后的别名（此时别名尚未定义）。
+-- 3. GROUP BY：将 WHERE 筛选后的行按指定字段分组，每组聚合为一条记录。
+-- 4. 聚合函数：SUM/COUNT/AVG等
+-- 5. HAVING：对 GROUP BY 分组后的结果进行组级筛选（过滤不满足聚合条件的组）。
+--          例：HAVING COUNT(*) > 1（只保留记录数大于 1 的组），只能用聚合函数 / 分组字段。
+-- 6. WINDOW FUNCTION（窗口函数）：对分组后的结果执行窗口计算（如排名、累计求和），不改变记录行数。
+-- 7. SELECT：筛选需要展示的字段（或聚合函数结果），并为字段指定别名（此时别名生效）。
+-- 8. DISTINCT：对 SELECT 的结果去重（若指定该关键字）。
+-- 9. ORDER BY：按指定字段对最终结果排序（升序 ASC / 降序 DESC），此时可使用 SELECT 的别名。
+-- 10. LIMIT/OFFSET：限制返回的记录数（如分页查询），仅在最后执行。
 
 -- 主流数据库中有 substring() 方法，但因早期面向非编程人员，索引从 1 开始
 -- MySQL 中的 substring() 方法
