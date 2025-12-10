@@ -1,0 +1,35 @@
+-- 表：Employee
+--
+-- +---------------+---------+
+-- | Column Name   |  Type   |
+-- +---------------+---------+
+-- | employee_id   | int     |
+-- | department_id | int     |
+-- | primary_flag  | varchar |
+-- +---------------+---------+
+-- 这张表的主键为 employee_id, department_id (具有唯一值的列的组合)
+-- employee_id 是员工的ID
+-- department_id 是部门的ID，表示员工与该部门有关系
+-- primary_flag 是一个枚举类型，值分别为('Y', 'N'). 如果值为'Y',表示该部门是员工的直属部门。 如果值是'N',则否
+--
+--
+-- 一个员工可以属于多个部门。当一个员工加入超过一个部门的时候，他需要决定哪个部门是他的直属部门。请注意，当员工只加入一个部门的时候，那这个部门将默认为他的直属部门，虽然表记录的值为'N'.
+--
+-- 请编写解决方案，查出员工所属的直属部门。
+--
+-- 返回结果 没有顺序要求 。
+
+SELECT employee_id, department_id
+FROM Employee
+GROUP BY employee_id
+HAVING COUNT(*) = 1
+
+UNION
+
+SELECT employee_id, department_id
+FROM Employee
+WHERE primary_flag = 'Y';
+
+-- SQL 语法规则中，GROUP BY 分组后，HAVING 子句只能使用两种列：
+--  1. GROUP BY 子句中明确指定的分组列（本例中只有 employee_id）；
+--  2. 被聚合函数（如 COUNT/SUM/MAX 等）包裹的列。
