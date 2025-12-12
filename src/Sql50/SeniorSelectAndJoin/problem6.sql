@@ -1,0 +1,117 @@
+-- 表: Queue
+--
+-- +-------------+---------+
+-- | Column Name | Type    |
+-- +-------------+---------+
+-- | person_id   | int     |
+-- | person_name | varchar |
+-- | weight      | int     |
+-- | turn        | int     |
+-- +-------------+---------+
+-- person_id 是这个表具有唯一值的列。
+-- 该表展示了所有候车乘客的信息。
+-- 表中 person_id 和 turn 列将包含从 1 到 n 的所有数字，其中 n 是表中的行数。
+-- turn 决定了候车乘客上巴士的顺序，其中 turn=1 表示第一个上巴士，turn=n 表示最后一个上巴士。
+-- weight 表示候车乘客的体重，以千克为单位。
+--
+--
+-- 有一队乘客在等着上巴士。然而，巴士有1000  千克 的重量限制，所以其中一部分乘客可能无法上巴士。
+--
+-- 编写解决方案找出 最后一个 上巴士且不超过重量限制的乘客，并报告 person_name 。题目测试用例确保顺位第一的人可以上巴士且不会超重。
+
+SELECT person_name
+FROM (
+    SELECT person_name, SUM(weight) OVER(ORDER BY turn) as sum_weight
+    FROM Queue
+     ) AS w
+WHERE sum_weight <= 1000
+ORDER BY sum_weight DESC
+LIMIT 0, 1;
+
+-- 聚合函数 + 窗口函数的核心效果
+--
+-- 示例表
+-- shop_id	sale_date	sales
+-- 1	2025-01-01	100
+-- 1	2025-01-02	200
+-- 1	2025-01-03	150
+-- 2	2025-01-01	300
+-- 2	2025-01-02	250
+-- 2	2025-01-03	400
+--
+-- （一）场景 1：分组全局聚合（无排序，组内所有行共享同一聚合值）
+-- （1）逻辑：按 shop_id 分组，计算每个店铺的「总销量」「平均销量」「最大单日销量」，每行都显示该店铺的聚合结果。
+-- （2）SQL 示例：
+-- SELECT
+--   shop_id,
+--   sale_date,
+--   sales,
+--   -- 窗口聚合：每个店铺的总销量（组内所有行的sum）
+--   SUM(sales) OVER (PARTITION BY shop_id) AS shop_total_sales,
+--   -- 窗口聚合：每个店铺的平均销量
+--   AVG(sales) OVER (PARTITION BY shop_id) AS shop_avg_sales,
+--   -- 窗口聚合：每个店铺的最大单日销量
+--   MAX(sales) OVER (PARTITION BY shop_id) AS shop_max_sales,
+--   -- 窗口聚合：每个店铺的行数（总天数）
+--   COUNT(*) OVER (PARTITION BY shop_id) AS shop_sale_days
+-- FROM sales;
+--  （3）结果（重点看 shop_id=1 的聚合值，所有行都相同）：
+-- shop_id	sale_date	sales	shop_total_sales	shop_avg_sales	shop_max_sales	shop_sale_days
+-- 1	2025-01-01	100	450	150	200	3
+-- 1	2025-01-02	200	450	150	200	3
+-- 1	2025-01-03	150	450	150	200	3
+-- 2	2025-01-01	300	950	316.67	400	3
+-- 2	2025-01-02	250	950	316.67	400	3
+-- 2	2025-01-03	400	950	316.67	400	3
+--
+-- （二）场景 2：累计聚合（带排序，截至当前行的聚合）
+--  （1）逻辑：按 shop_id 分组、sale_date 排序，计算「累计销量」「累计平均值」—— 聚合范围是「分组内从第一行到当前行」。
+--  （2）SQL 示例：
+-- SELECT
+--   shop_id,
+--   sale_date,
+--   sales,
+--   -- 累计销量：当前行及之前所有行的销量和
+--   SUM(sales) OVER (PARTITION BY shop_id ORDER BY sale_date) AS cumulative_sales,
+--   -- 累计平均值：当前行及之前所有行的平均销量
+--   AVG(sales) OVER (PARTITION BY shop_id ORDER BY sale_date) AS cumulative_avg,
+--   -- 累计计数：当前是第几天的销量
+--   COUNT(*) OVER (PARTITION BY shop_id ORDER BY sale_date) AS cumulative_days
+-- FROM sales;
+--  （3）结果（重点看 cumulative_sales 列的累计效果）：
+-- shop_id	sale_date	sales	cumulative_sales	cumulative_avg	cumulative_days
+-- 1	2025-01-01	100	100	100	1
+-- 1	2025-01-02	200	300	150	2
+-- 1	2025-01-03	150	450	150	3
+-- 2	2025-01-01	300	300	300	1
+-- 2	2025-01-02	250	550	275	2
+-- 2	2025-01-03	400	950	316.67	3
+--
+-- （三）场景 3：移动聚合（自定义窗口范围，如近 N 行）
+--  （1）逻辑：精细控制窗口范围（如「当前行 + 前 1 行」「当前行 ±1 行」），实现「移动平均」「近 3 天销量和」等效果。
+--  （2）SQL 示例（计算每个店铺「当前行 + 前 1 行」的移动销量和、移动平均）：
+-- SELECT
+--   shop_id,
+--   sale_date,
+--   sales,
+--   -- 移动和：当前行 + 前1行（无则仅当前行）
+--   SUM(sales) OVER (
+--     PARTITION BY shop_id
+--     ORDER BY sale_date
+--     ROWS BETWEEN 1 PRECEDING AND CURRENT ROW  -- 窗口范围：前1行到当前行
+--   ) AS moving_sum,
+--   -- 移动平均：当前行 + 前1行的平均值
+--   AVG(sales) OVER (
+--     PARTITION BY shop_id
+--     ORDER BY sale_date
+--     ROWS BETWEEN 1 PRECEDING AND CURRENT ROW
+--   ) AS moving_avg
+-- FROM sales;
+--  （3）结果（重点看 moving_sum 列的移动效果）：
+-- shop_id	sale_date	sales	moving_sum	moving_avg
+-- 1	2025-01-01	100	100	100	（无前行，仅当前行）
+-- 1	2025-01-02	200	300	150	（100+200）
+-- 1	2025-01-03	150	350	175	（200+150）
+-- 2	2025-01-01	300	300	300
+-- 2	2025-01-02	250	550	275	（300+250）
+-- 2	2025-01-03	400	650	325	（250+400）
