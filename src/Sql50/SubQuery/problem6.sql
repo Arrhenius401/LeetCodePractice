@@ -1,0 +1,51 @@
+-- Insurance 表：
+--
+-- +-------------+-------+
+-- | Column Name | Type  |
+-- +-------------+-------+
+-- | pid         | int   |
+-- | tiv_2015    | float |
+-- | tiv_2016    | float |
+-- | lat         | float |
+-- | lon         | float |
+-- +-------------+-------+
+-- pid 是这张表的主键(具有唯一值的列)。
+-- 表中的每一行都包含一条保险信息，其中：
+-- pid 是投保人的投保编号。
+-- tiv_2015 是该投保人在 2015 年的总投保金额，tiv_2016 是该投保人在 2016 年的总投保金额。
+-- lat 是投保人所在城市的纬度。题目数据确保 lat 不为空。
+-- lon 是投保人所在城市的经度。题目数据确保 lon 不为空。
+--
+--
+-- 编写解决方案报告 2016 年 (tiv_2016) 所有满足下述条件的投保人的投保金额之和：
+--
+-- 他在 2015 年的投保额 (tiv_2015) 至少跟一个其他投保人在 2015 年的投保额相同。
+-- 他所在的城市必须与其他投保人都不同（也就是说 (lat, lon) 不能跟其他任何一个投保人完全相同）。
+-- tiv_2016 四舍五入的 两位小数 。
+
+SELECT
+    SUM(insurance.TIV_2016) AS TIV_2016
+FROM
+    insurance
+WHERE
+    insurance.TIV_2015 IN
+    (
+      SELECT
+        TIV_2015
+      FROM
+        insurance
+      GROUP BY TIV_2015
+      HAVING COUNT(*) > 1
+    )
+    AND CONCAT(LAT, LON) IN
+    (
+      SELECT
+        CONCAT(LAT, LON)
+      FROM
+        insurance
+      GROUP BY LAT , LON
+      HAVING COUNT(*) = 1
+    )
+
+-- CONCAT(字符串1, 字符串2, ..., 字符串N) 是 SQL 中的字符串拼接函数，核心作用是将多个字符串（或可隐式转换为字符串的数值、字段）连接成一个新的字符串
+-- 是各类数据库（MySQL、Oracle、SQL Server 等）通用的基础函数（语法细节略有差异）。
