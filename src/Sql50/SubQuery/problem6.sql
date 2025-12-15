@@ -23,29 +23,7 @@
 -- 他所在的城市必须与其他投保人都不同（也就是说 (lat, lon) 不能跟其他任何一个投保人完全相同）。
 -- tiv_2016 四舍五入的 两位小数 。
 
-SELECT
-    SUM(insurance.TIV_2016) AS TIV_2016
-FROM
-    insurance
-WHERE
-    insurance.TIV_2015 IN
-    (
-      SELECT
-        TIV_2015
-      FROM
-        insurance
-      GROUP BY TIV_2015
-      HAVING COUNT(*) > 1
-    )
-    AND CONCAT(LAT, LON) IN
-    (
-      SELECT
-        CONCAT(LAT, LON)
-      FROM
-        insurance
-      GROUP BY LAT , LON
-      HAVING COUNT(*) = 1
-    )
+
 
 -- CONCAT(字符串1, 字符串2, ..., 字符串N) 是 SQL 中的字符串拼接函数，核心作用是将多个字符串（或可隐式转换为字符串的数值、字段）连接成一个新的字符串
 -- 是各类数据库（MySQL、Oracle、SQL Server 等）通用的基础函数（语法细节略有差异）。
