@@ -23,7 +23,13 @@
 -- 他所在的城市必须与其他投保人都不同（也就是说 (lat, lon) 不能跟其他任何一个投保人完全相同）。
 -- tiv_2016 四舍五入的 两位小数 。
 
-
+SELECT t1.Department, t1.Employee, t1.Salary
+FROM (
+    SELECT d.name AS Department, e.name AS Employee, e.salary AS Salary, DENSE_RANK() OVER(PARTITION BY e.departmentId ORDER BY e.salary DESC) AS ranking
+    FROM Employee e JOIN Department d ON e.departmentId = d.id
+    ) AS t1
+WHERE ranking <= 3
+ORDER BY t1.Department ASC, t1.Salary DESC;
 
 -- CONCAT(字符串1, 字符串2, ..., 字符串N) 是 SQL 中的字符串拼接函数，核心作用是将多个字符串（或可隐式转换为字符串的数值、字段）连接成一个新的字符串
 -- 是各类数据库（MySQL、Oracle、SQL Server 等）通用的基础函数（语法细节略有差异）。
