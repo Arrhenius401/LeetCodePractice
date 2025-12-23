@@ -32,7 +32,7 @@ public class WordDictionary {
         } else {
             for (int i = 0; i < 26; i++) {
                 Trie child = node.getChildren()[i];
-                if (child != null &&  dfs((word, index + 1, child)) {
+                if (child != null &&  dfs(word, index + 1, child)) {
                     return true;
                 }
             }
