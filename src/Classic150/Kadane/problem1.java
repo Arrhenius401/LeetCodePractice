@@ -18,8 +18,10 @@ public class problem1 {
         int pre = nums[0];
 
         for (int i = 1; i < n; i++) {
+            // 1. 不考虑环
             pre = Math.max(pre + nums[i], nums[i]);
             ans = Math.max(ans, pre);
+            // 2. 考虑环，计算左侧前缀
             leftSum += nums[i];
             leftMax[i] = Math.max(leftMax[i-1], leftSum);
         }
