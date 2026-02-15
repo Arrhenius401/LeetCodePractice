@@ -18,14 +18,10 @@ public class problem3 {
             return nums[k];
         }
 
-        int x = nums[l], i = l, j = r;
+        int x = nums[l], i = l-1, j = r+1;
         while (i < j){
-            while (nums[i] < x){
-                i++;
-            }
-            while (nums[j] > x){
-                j--;
-            }
+            do i++; while (nums[i] < x);
+            do j--; while (nums[j] > x);
 
             if(i < j){
                 int temp = nums[i];
@@ -39,5 +35,13 @@ public class problem3 {
         }else {
             return quickSelect(nums, j + 1, r, k);
         }
+    }
+
+    public static void main(String[] args) {
+        int[] nums = {3,2,3,1,2,4,5,5,6};
+        int k = 4;
+        problem3 p = new problem3();
+
+        System.out.println(p.findKthLargest(nums, k));
     }
 }
