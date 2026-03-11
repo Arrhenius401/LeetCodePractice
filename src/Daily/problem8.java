@@ -13,7 +13,7 @@ public class problem8 {
         int len = binS.length();
         int cur = 1;
         int ans = 0;
-        for (int i = len-1; i > 0; i--) {
+        for (int i = len-1; i >= 0; i--) {
             if(binS.charAt(i) == '0'){
                 ans += cur;
             }
@@ -21,5 +21,10 @@ public class problem8 {
         }
 
         return ans;
+    }
+
+    public static void main(String[] args) {
+        problem8 p = new problem8();
+        System.out.println(p.bitwiseComplement(0));
     }
 }
